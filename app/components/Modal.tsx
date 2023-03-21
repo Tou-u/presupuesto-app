@@ -1,9 +1,13 @@
 "use client"
 import { ChangeEvent, useState } from "react"
+import axios from "axios"
+import { useSWRConfig } from "swr"
 
 export default function Modal() {
   const [nombre, setNombre] = useState("")
   const [costo, setCosto] = useState("")
+
+  const { mutate } = useSWRConfig()
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const result = event.target.value.replace(/\D/g, "")
@@ -15,10 +19,16 @@ export default function Modal() {
     setCosto("")
   }
 
-  const sendForm = () => {
+  const sendForm = async () => {
     if (nombre.trim() === "" || costo.trim() === "") return
     const format = parseInt(costo)
-    console.log({ nombre, costo: format })
+    const data = { nombre, costo: format }
+
+    // postData("/api/nuevogasto", data)
+    const res = await axios.post("/api/nuevogasto", data)
+    console.log(res.data)
+    mutate("/api/getpresupuesto")
+
     clearForm()
     const ele = document.getElementById("my-modal") as HTMLInputElement
     ele.checked = false
